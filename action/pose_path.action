@@ -1,0 +1,9 @@
+# goal
+nav_msgs/Path path
+---
+# result
+nav_msgs/Path path
+---
+# feedback
+# The current pose being moved to
+geometry_msgs/Pose pose
