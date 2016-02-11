@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find my_action_server)/worlds/lidar_bot.world"/>
+    </include>
+    <include file="$(find mobot_urdf)/launch/mobot_w_lidar.launch"/>
+    <node name="lidar_alarm" package="my_action_server" type="lidar_alarm.py"/>
+    <node name="action_server" package="my_action_server" type="action_server.py"/>
+    <node name="action_client" package="my_action_server" type="action_client.py"/>
+</launch>
