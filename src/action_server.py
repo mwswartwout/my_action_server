@@ -112,7 +112,9 @@ class PosePathServer:
             self.current_pose.orientation = pose_desired.orientation
 
             self.do_move(travel_distance)
-            self.current_pose.position = pose_desired.position
+            # Current pose will always be (0,0,0)
+            # Thus the position sent to the server will always be relative
+            # to the current position, rather than an absolute coordinate
             feedback.completed = True
             self.server.publish_feedback(feedback)
 
