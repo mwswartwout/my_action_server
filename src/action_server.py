@@ -16,6 +16,7 @@ class ActionServer:
     result = pose_pathResult()
 
     def __init__(self):
+        rospy.loginfo("Initalizing ActionServer")
         self.move_speed = 1
         self.spin_speed = 1
 
@@ -41,17 +42,20 @@ class ActionServer:
         self.twist_commander = rospy.Publisher('cmd_vel',
                                                Twist,
                                                queue_size=1)
+        rospy.loginfo("twist_commander on topic cmd_vel created")
 
         self.server = actionlib.SimpleActionServer('pose_path_action',
                                                    pose_pathAction,
                                                    self.callback,
                                                    False)
+        rospy.loginfo("Starting server on pose_path_action")
         self.server.start()
+        rospy.loginfo("Started server successfully")
 
     def get_yaw_and_dist(self, goal_pose):
         x = goal_pose.position.x - self.current_pose.position.x
         y = goal_pose.position.y - self.current_pose.position.y
-        yaw = math.atan2(x, y)
+        yaw = math.atan2(y, x)
         dist = math.sqrt(x + y)
         return [yaw, dist]
 
@@ -90,21 +94,22 @@ class ActionServer:
 
     def callback(self, goal):
         rospy.loginfo("New pose path goal received")
-        poses_list = goal.nav_path.poses
+        poses_list = goal.path.poses
+        rospy.loginfo("New path has %d poses", len(poses_list))
 
         feedback = pose_pathFeedback()
         for i in range(len(poses_list)):
             pose_desired = poses_list[i].pose
-            rospy.logdebug("Executing pose %d in goal path", i)
+            rospy.loginfo("Executing pose %d in goal path", i)
             feedback.pose = pose_desired
-            feedback.completed = False
+            feedback.completed.data = False
             self.server.publish_feedback(feedback)
 
             desired = self.get_yaw_and_dist(pose_desired)
             spin_angle = desired[0]
             travel_distance = desired[1]
-            rospy.logdebug("Calculated desired yaw of %f", spin_angle)
-            rospy.logdebug("Calculated desired travel distance of %f",
+            rospy.loginfo("Calculated desired yaw of %f", spin_angle)
+            rospy.loginfo("Calculated desired travel distance of %f",
                            travel_distance)
 
             spin_angle = utils.min_spin(spin_angle)
@@ -115,10 +120,10 @@ class ActionServer:
             # Current pose will always be (0,0,0)
             # Thus the position sent to the server will always be relative
             # to the current position, rather than an absolute coordinate
-            feedback.completed = True
+            feedback.completed.data = True
             self.server.publish_feedback(feedback)
 
-        result = pose_pathResult(path=goal)
+        result = pose_pathResult(path=goal.path)
         self.server.set_succeeded(result)
 
 

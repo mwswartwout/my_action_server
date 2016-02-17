@@ -4,7 +4,7 @@ import math
 
 import actionlib
 import rospy
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, Quaternion
 from my_action_server.msg import pose_pathAction, pose_pathGoal
 from nav_msgs.msg import Path
 from std_msgs.msg import Header, Bool
@@ -18,7 +18,7 @@ class ActionClient:
                                             Bool,
                                             self.alarm_callback)
 
-        self.client = actionlib.SimpleActionClient('pose_path',
+        self.client = actionlib.SimpleActionClient('pose_path_action',
                                                    pose_pathAction)
 
         rospy.loginfo("Waiting for pose_path action server")
@@ -46,10 +46,8 @@ class ActionClient:
 def generate_square_path():
     path = Path()
 
-    pose = generate_stamped_pose(1, 0)
-    path.poses.append(pose)
-
     pose = generate_stamped_pose(0, 1)
+    path.poses.append(pose)
     path.poses.append(pose)
     path.poses.append(pose)
     path.poses.append(pose)
@@ -81,6 +79,7 @@ def stamp_pose(pose):
 
 def generate_stamped_pose(x=0, y=0, quaternion=None):
     if quaternion is None:
+        quaternion = Quaternion()
         quaternion.x = 0
         quaternion.y = 0
         quaternion.z = 0
