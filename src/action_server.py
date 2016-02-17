@@ -11,7 +11,7 @@ from my_action_server.msg import pose_pathAction, pose_pathFeedback, \
 import utils
 
 
-class PosePathServer:
+class ActionServer:
     feedback = pose_pathFeedback()
     result = pose_pathResult()
 
@@ -118,12 +118,13 @@ class PosePathServer:
             feedback.completed = True
             self.server.publish_feedback(feedback)
 
-        self.server.set_succeeded()
+        result = pose_pathResult(path=goal)
+        self.server.set_succeeded(result)
 
 
 def main():
     rospy.init_node('pose_path_server')
-    server = PosePathServer()
+    server = ActionServer()
     rospy.spin()
 
 
