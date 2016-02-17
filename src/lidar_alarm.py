@@ -5,7 +5,8 @@ from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float32, Bool
 
 
-class LidarAlarm():
+class LidarAlarm:
+
     def __init__(self):
         # set alarm if anything is within 0.5m of the front of robot
         self.MIN_SAFE_DISTANCE = 0.5
@@ -37,7 +38,7 @@ class LidarAlarm():
                                                      Float32,
                                                      queue_size=1)
 
-    def setScanProperties(self, laser_scan):
+    def set_scan_properties(self, laser_scan):
         self.angle_min_ = laser_scan.angle_min
         self.angle_max_ = laser_scan.angle_max
         self.angle_increment_ = laser_scan.angle_increment
@@ -51,10 +52,10 @@ class LidarAlarm():
         rospy.loginfo("Maximum range is %f", self.range_max_)
         rospy.loginfo("Total number of pings is %d", len(laser_scan.ranges))
 
-    def laserCallback(self, laser_scan):
+    def laser_callback(self, laser_scan):
 
         if self.ping_index_ < 0:
-            self.setScanProperties(laser_scan)
+            self.set_scan_properties(laser_scan)
 
             # Assume min/max angle are symmetrical and set up evenly on robot
             # This is the ping index that is straight ahead
@@ -104,7 +105,7 @@ def main():
     # create a Subscriber object and have it subscribe to the lidar topic
     lidar_subscriber = rospy.Subscriber('scan',
                                         LaserScan,
-                                        alarm.laserCallback)
+                                        alarm.laser_callback)
 
     rospy.spin()
     # this is essentially a "while(1)" statement, except it
