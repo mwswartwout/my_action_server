@@ -27,6 +27,15 @@ class ActionClient:
 
     def alarm_callback(self, alarm):
         if alarm:
+            # First halt the robot
+            pose = generate_stamped_pose(0, 0)
+            path = Path()
+            path.poses.append(pose)
+            goal = pose_pathGoal(path=path)
+            self.client.send_goal(goal)
+            self.client.wait_for_result()
+
+            # Then do a turn to get out of danger
             path = generate_turn_path(math.pi / 8)
             goal = pose_pathGoal(path=path)
             self.client.send_goal(goal)
@@ -46,7 +55,7 @@ class ActionClient:
 def generate_square_path():
     path = Path()
 
-    pose = generate_stamped_pose(0, 1)
+    pose = generate_stamped_pose(0, 5)
     path.poses.append(pose)
     path.poses.append(pose)
     path.poses.append(pose)

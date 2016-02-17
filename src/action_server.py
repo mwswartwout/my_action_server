@@ -17,10 +17,10 @@ class ActionServer:
 
     def __init__(self):
         rospy.loginfo("Initalizing ActionServer")
-        self.move_speed = 1
-        self.spin_speed = 1
+        self.move_speed = .5
+        self.spin_speed = .5
 
-        self.sample_dt = .01
+        self.sample_dt = .2
         self.loop_timer = rospy.Rate(1 / self.sample_dt)
 
         self.current_pose = Pose()

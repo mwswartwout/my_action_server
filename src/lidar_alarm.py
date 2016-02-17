@@ -9,14 +9,14 @@ class LidarAlarm:
 
     def __init__(self):
         # set alarm if anything is within 0.5m of the front of robot
-        self.MIN_SAFE_DISTANCE = 0.5
+        self.MIN_SAFE_DISTANCE = 1
 
         # set what percentages of pings must be < than MIN_SAFE_DISTANCE
         # for our alarm to return a warning
-        self.ALARM_TRIP_PERCENTAGE = 0
+        self.ALARM_TRIP_PERCENTAGE = .01
 
         # Set what width (in pings) we want to scan for obstacles
-        self.ALARM_SCAN_WIDTH = 250
+        self.ALARM_SCAN_WIDTH = 45
 
         # these values to be set within the laser callback
         self.ping_dist_in_front_ = 3
@@ -65,7 +65,13 @@ class LidarAlarm:
 
             # Set the beginning and end of our scan zone
             self.min_index = self.ping_index_ - int(self.ALARM_SCAN_WIDTH / 2)
+            if self.min_index < 0:
+                rospy.logwarn("Lidar alarm scan width is too large!")
+                self.min_index = 0
             self.max_index = self.ping_index_ + int(self.ALARM_SCAN_WIDTH / 2)
+            if self.max_index > len(laser_scan.ranges):
+                rospy.logwarn("Lidar alarm scan width is too large")
+                self.max_index = len(laser_scan.ranges)
             rospy.loginfo("min index is %d", self.min_index)
             rospy.loginfo("max index is %d", self.max_index)
 
@@ -76,12 +82,15 @@ class LidarAlarm:
             if laser_scan.ranges[x] > self.range_min_:
                 if laser_scan.ranges[x] < self.range_max_:
                     num_pings += 1
+                    rospy.logdebug("Ping %d with range %f", num_pings,
+                                   laser_scan.ranges[x])
+                    average += laser_scan.ranges[x]
                     if laser_scan.ranges[x] < self.MIN_SAFE_DISTANCE:
                         count += 1
-                        average += laser_scan.ranges[x]
+
 
         rospy.loginfo(
-            "%d valid lidar pings with %d dangerous pings with average distance %f",
+            "%d valid lidar pings, %d dangerous pings, average distance %f",
             num_pings, count, float(average) / float(num_pings))
         if count > (num_pings * self.ALARM_TRIP_PERCENTAGE):
             self.laser_alarm = True
