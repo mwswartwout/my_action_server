@@ -92,9 +92,13 @@ class PosePathServer:
         rospy.loginfo("New pose path goal received")
         poses_list = goal.nav_path.poses
 
+        feedback = pose_pathFeedback()
         for i in range(len(poses_list)):
             pose_desired = poses_list[i].pose
             rospy.logdebug("Executing pose %d in goal path", i)
+            feedback.pose = pose_desired
+            feedback.completed = False
+            self.server.publish_feedback(feedback)
 
             desired = self.get_yaw_and_dist(pose_desired)
             spin_angle = desired[0]
@@ -109,6 +113,8 @@ class PosePathServer:
 
             self.do_move(travel_distance)
             self.current_pose.position = pose_desired.position
+            feedback.completed = True
+            self.server.publish_feedback(feedback)
 
         self.server.set_succeeded()
 

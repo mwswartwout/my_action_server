@@ -7,3 +7,4 @@ nav_msgs/Path path
 # feedback
 # The current pose being moved to
 geometry_msgs/Pose pose
+std_msgs/Bool completed
